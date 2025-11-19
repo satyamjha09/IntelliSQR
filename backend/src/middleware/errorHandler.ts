@@ -1,8 +1,11 @@
+import { Request, Response, NextFunction } from 'express';
 import { ErrorLog } from '../models/ErrorLog';
 
-const errorHandler = async (err: any, req: Request, res: Response, next: NextFunction) => {
+const errorHandler = async (err: any, req: Request, res: Response, next: NextFunction): Promise<void> => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
+
+  console.error(`[Error] ${message}`);
 
   try {
     await ErrorLog.create({
@@ -14,7 +17,7 @@ const errorHandler = async (err: any, req: Request, res: Response, next: NextFun
       method: req.method
     });
   } catch (logError) {
-    console.log('Failed to log error:', logError);
+    console.log('Failed to log error to database');
   }
 
   res.status(statusCode).json({ error: message });
